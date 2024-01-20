@@ -1,11 +1,14 @@
 pipeline {
     agent any
+    parameters{
+        string(name:'env' , defaultValue:'Test' , description:'environment to compile')
+    }
 
     stages {
         stage('compile') {
             steps {
                 script{
-                    echo 'Compile-Hello World'
+                    echo "compile in env: ${params.env}"
                 }
                 
             }
