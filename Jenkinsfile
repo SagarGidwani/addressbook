@@ -1,8 +1,10 @@
 pipeline {
     agent any
     parameters{
-        string(name:'env' , defaultValue:'Test' , description:'environment to compile')
-    }
+        string(name:'env' , defaultValue:'Test' , description:'environment to compile') 
+        booleanParam(name:'executeTests',defaultValue: true, description:'decide to run tc')
+        choice(name:'AppVersion',choices:['1.1', '1.2','1.3'])
+    } 
 
     stages {
         stage('compile') {
