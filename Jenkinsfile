@@ -32,7 +32,7 @@ pipeline {
             steps {
                 script{
                     echo "package-Hello World"
-                    echo "packaging the code version ${param.AppVersion} "
+                    echo "packaging the code version ${params.AppVersion} "
                 }
                 
             }
