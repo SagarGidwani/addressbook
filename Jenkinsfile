@@ -16,6 +16,11 @@ pipeline {
             }
         }
         stage('UnitTest') {
+            when{
+                expression{
+                    params.executeTests == true
+                }
+            }
             steps {
                 script{
                     echo 'UnitTEst-Hello World'
@@ -26,7 +31,8 @@ pipeline {
          stage('package') {
             steps {
                 script{
-                    echo 'package-Hello World'
+                    echo "package-Hello World"
+                    echo "packaging the code version ${param.AppVersion} "
                 }
                 
             }
