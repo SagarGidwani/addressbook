@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    tools {
+        jdk 'myjava'
+        maven 'mymaven' //not mentioning git because it is already installed manually on our server
+    }
     parameters{
         string(name:'ENV' , defaultValue:'Test' , description:'environment to compile') 
         booleanParam(name:'EXECUTETESTS',defaultValue: true, description:'decide to run tc')
@@ -10,7 +14,9 @@ pipeline {
         stage('compile') {
             steps {
                 script{
+                    echo "compile-hello world"
                     echo "compile in env: ${params.ENV}"
+                    sh "mvn compile"
                 }
                 
             }
@@ -24,6 +30,7 @@ pipeline {
             steps {
                 script{
                     echo 'UnitTest-Hello World'
+                    sh "mvn test"
                 }
                 
             }
@@ -33,6 +40,7 @@ pipeline {
                 script{
                     echo "package-Hello World"
                     echo "packaging the code version ${params.APPVERSION} "
+                    sh "mvn package"
                 }
                 
             }
