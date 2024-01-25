@@ -1,29 +1,40 @@
 pipeline {
     agent any
+    parameters{
+        string(name:'ENV' , defaultValue:'Test' , description:'environment to compile') 
+        booleanParam(name:'EXECUTETESTS',defaultValue: true, description:'decide to run tc')
+        choice(name:'APPVERSION',choices:['1.1', '1.2','1.3']) //by default the first value is considered if you dont give any default value
+    } 
 
     stages {
         stage('compile') {
             steps {
                 script{
-                    echo 'Compile-Hello World'
+                    echo "compile in env: ${params.ENV}"
                 }
-
+                
             }
         }
         stage('UnitTest') {
+            when{
+                expression{
+                    params.EXECUTETESTS == true
+                }
+            }
             steps {
                 script{
-                    echo 'UnitTEst-Hello World'
+                    echo 'UnitTest-Hello World'
                 }
-
+                
             }
         }
          stage('package') {
             steps {
                 script{
-                    echo 'package-Hello World'
+                    echo "package-Hello World"
+                    echo "packaging the code version ${params.APPVERSION} "
                 }
-
+                
             }
         }
     }
