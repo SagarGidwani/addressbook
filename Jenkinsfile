@@ -37,5 +37,21 @@ pipeline {
                 
             }
         }
+        stage('deploy') {
+            input{              //input block will help you provide an input during runtime
+                message "Select the version to deploy"
+                ok "version selected"
+                parameters{
+                    choice(name: 'NEWVERSION', choices:['3.4','3.5','3.6'])
+                }
+            }
+            steps {
+                script{
+                    echo "deploying the app"
+                    echo "deploy the code version ${params.NEWVERSION} "
+                }
+                
+            }
+        }
     }
 }
