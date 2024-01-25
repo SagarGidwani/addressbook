@@ -2,12 +2,12 @@ pipeline {
     agent any
     tools {
         jdk 'myjava'
-        maven 'mymaven' //not mentioning git because it is already installed manually on our server
+        maven 'mymaven' 
     }
     parameters{
         string(name:'ENV' , defaultValue:'Test' , description:'environment to compile') 
         booleanParam(name:'EXECUTETESTS',defaultValue: true, description:'decide to run tc')
-        choice(name:'APPVERSION',choices:['1.1', '1.2','1.3']) //by default the first value is considered if you dont give any default value
+        choice(name:'APPVERSION',choices:['1.1', '1.2','1.3']) 
     } 
 
     stages {
@@ -46,7 +46,7 @@ pipeline {
             }
         }
         stage('deploy') {
-            input{              //input block will help you provide an input during runtime
+            input{              
                 message "Select the version to deploy"
                 ok "version selected"
                 parameters{
