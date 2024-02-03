@@ -25,7 +25,7 @@ pipeline{
             }
         }
         stage('UnitTest'){
-            agent {label 'linux_slave1'}
+            agent any
             when{
                 expression{
                     params.EXECUTETESTS == true
