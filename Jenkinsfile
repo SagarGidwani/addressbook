@@ -38,9 +38,10 @@ pipeline{
         stage('deploy'){
             input{
                 message "select the version to deploy"
+                ok "version selected"
                 parameters{
                 choice(name:'NEWVERSION', choices:['3.3', '3.4','3.5'])
-                 }
+                }
             }
             steps{
                 script{
