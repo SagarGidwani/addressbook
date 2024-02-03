@@ -22,7 +22,7 @@ pipeline{
             }
         }
         stage('UnitTest'){
-            agent {label 'linux_slave2'}
+            agent any
             when{
                 expression{
                     params.EXECUTETESTS == true
@@ -41,7 +41,7 @@ pipeline{
             }
         }
         stage('package'){
-            agent any
+            agent {label 'linux_slave1'}
             steps{
                 script{
                     echo 'Package-hello world'
