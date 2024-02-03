@@ -1,5 +1,5 @@
 pipeline{
-    agent any
+    agent none
     tools{
         jdk 'myjava'
         maven 'mymaven'
@@ -12,6 +12,7 @@ pipeline{
 
     stages{
         stage('compile'){
+            agent any
             steps{
                 script{
                     echo 'compile-hello world'
@@ -21,6 +22,7 @@ pipeline{
             }
         }
         stage('UnitTest'){
+            agent any
             when{
                 expression{
                     params.EXECUTETESTS == true
@@ -34,6 +36,7 @@ pipeline{
             }
         }
         stage('package'){
+            agent {label 'linux_slave1'}
             steps{
                 script{
                     echo 'Package-hello world'
