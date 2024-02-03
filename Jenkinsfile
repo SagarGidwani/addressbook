@@ -1,56 +1,56 @@
-pipeline {
+pipeline{
     agent any
     parameters{
-        string(name:'ENV' , defaultValue:'Test' , description:'environment to compile') 
-        booleanParam(name:'EXECUTETESTS',defaultValue: true, description:'decide to run tc')
-        choice(name:'APPVERSION',choices:['1.1', '1.2','1.3']) //by default the first value is considered if you dont give any default value
-    } 
+        string(name:'ENV', defaultValue:'test', description:'environment to compile')
+        booleanParam(name:'EXECUTETESTS',defaultValue: true,description:'decide to run tc')
+        choice(name:'APPVERSION',choices:['1.1','1.2','1.3'])
+    }
 
-    stages {
-        stage('compile') {
-            steps {
+    stages{
+        stage('compile'){
+            steps{
                 script{
-                    echo "compile in env: ${params.ENV}"
+                    echo 'compile-hello world'
+                    echo "compile in env : ${params.ENV}"
+                    sh 'mvn compile'
                 }
-                
             }
         }
-        stage('UnitTest') {
+        stage('UnitTest'){
             when{
                 expression{
                     params.EXECUTETESTS == true
                 }
             }
-            steps {
+            steps{
                 script{
-                    echo 'UnitTest-Hello World'
+                    echo 'UnitTest-hello world'
+                    sh 'mvn test'
                 }
-                
             }
         }
-         stage('package') {
-            steps {
+        stage('package'){
+            steps{
                 script{
-                    echo "package-Hello World"
-                    echo "packaging the code version ${params.APPVERSION} "
+                    echo 'Package-hello world'
+                    echo "packaging the code version : ${params.APPVERSION}"
+                    sh 'mvn package'
                 }
-                
             }
         }
-        stage('deploy') {
-            input{              //input block will help you provide an input during runtime
-                message "Select the version to deploy"
-                ok "version selected"  //if you dont use this by default the ok button would be "proceed"
+        stage('deploy'){
+            input{
+                message "select the version to deploy"
+                ok "version selected"
                 parameters{
-                    choice(name: 'NEWVERSION', choices:['3.4','3.5','3.6'])
+                    choice(name:'NEWVERSION', choices:['3.3','3.4','3.5'])
                 }
             }
-            steps {
+            steps{
                 script{
-                    echo "deploying the app"
-                    echo "deploy the code version ${params.NEWVERSION} "
+                    echo "depolying the app"
+                    echo "deploying the code version: ${params.NEWVERSION}"
                 }
-                
             }
         }
     }
