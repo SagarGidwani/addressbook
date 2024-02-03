@@ -27,7 +27,7 @@ pipeline {
             }
         }
         stage('UnitTest') {
-            agent {label 'linux_slave'}   //running the package job on slave1 with label as linux_slave
+            agent {label 'linux_slave1'}   //running the package job on slave1 with label as linux_slave
             when{
                 expression{
                     params.EXECUTETESTS == true
