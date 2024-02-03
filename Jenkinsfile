@@ -35,5 +35,19 @@ pipeline{
                 }
             }
         }
+        stage('deploy'){
+            input{
+                message "select the version to deploy"
+                parameters{
+                choice(name:'NEWVERSION', choices:['3.3', '3.4','3.5'])
+                 }
+            }
+            steps{
+                script{
+                    echo "depolying the app"
+                    echo "deploying the code version: ${params.NEWVERSION}"
+                }
+            }
+        }
     }
 }
