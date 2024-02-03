@@ -41,7 +41,7 @@ pipeline{
             }
         }
         stage('package'){
-            agent {label 'linux_slave1'}
+            agent any
             steps{
                 script{
                     echo 'Package-hello world'
