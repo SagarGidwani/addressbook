@@ -22,7 +22,7 @@ pipeline{
             }
         }
         stage('UnitTest'){
-            agent any
+            agent {label 'linux_slave2'}
             when{
                 expression{
                     params.EXECUTETESTS == true
