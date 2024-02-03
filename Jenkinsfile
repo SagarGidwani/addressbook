@@ -46,7 +46,7 @@ pipeline{
             steps{
                 script{
                     echo "depolying the app"
-                    echo "deploying the code version: ${params.NEWVERSION}"
+                    echo "deploying the code version: ${params.APPVERSION}"
                 }
             }
         }
