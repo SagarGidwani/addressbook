@@ -2,21 +2,23 @@ pipeline {
     agent none
     tools {
         jdk 'myjava'
-        maven 'mymaven' //not mentioning git because it is already installed manually on our server
+        maven 'mymaven' 
     }
     parameters{
         string(name:'ENV' , defaultValue:'Test' , description:'environment to compile') 
         booleanParam(name:'EXECUTETESTS',defaultValue: true, description:'decide to run tc')
-        choice(name:'APPVERSION',choices:['1.1', '1.2','1.3']) //by default the first value is considered if you dont give any default value
+        choice(name:'APPVERSION',choices:['1.1', '1.2','1.3']) 
     } 
 
     environment{
-        DEV_SERVER= 'ec2-user@172.31.36.74'
+        DEV_SERVER= 'ec2-user@172.31.36.236'
+        DEPLOY_SERVER= 'ec2-user@172.31.37.66'
+        IMAGE_NAME= 'sagargidwani/java-mvn-privaterepos'
     }
 
     stages {
         stage('compile') {
-            agent any   //this job will run on master as the slave is configured to build jobs with matching node labels
+            agent any   
             steps {
                 script{
                     echo "compile-hello world"
@@ -27,7 +29,7 @@ pipeline {
             }
         }
         stage('UnitTest') {
-            agent {label 'linux_slave1'}   //running the package job on slave1 with label as linux_slave
+            agent any   
             when{
                 expression{
                     params.EXECUTETESTS == true
@@ -49,19 +51,23 @@ pipeline {
             agent any
             steps {
                 script{
-                    sshagent(['aws-key']) {         //we had given the id as aws-key. So this stage will be executed on slave2
+                    sshagent(['aws-key']) {     
+                       withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'dockerpasswd', usernameVariable: 'dockeruser')]) {    
                     echo "package-Hello World"
                     echo "packaging the code version ${params.APPVERSION} "
-                    sh "scp -o StrictHostKeyChecking=no server-config.sh ${DEV_SERVER}:/home/ec2-user" //copying server config file to the slave2 machine in the home dir of ec2-user scp=secure copy
-                    sh "ssh -o StrictHostKeyChecking=no ${DEV_SERVER} 'bash ~/server-config.sh' " //from the master it is doing scp and ssh as the jenkinsfile script is being executed on the master
-                     }
+                    sh "scp -o StrictHostKeyChecking=no server-config.sh ${DEV_SERVER}:/home/ec2-user" 
+                    sh "ssh -o StrictHostKeyChecking=no ${DEV_SERVER} 'bash ~/server-config.sh ${IMAGE_NAME} ${BUILD_NUMBER}' "
+                    sh "ssh ${DEV_SERVER} sudo docker login -u ${dockeruser} -p ${dockerpasswd}"
+                    sh "ssh ${DEV_SERVER} sudo docker push ${IMAGE_NAME}:${BUILD_NUMBER}" 
+                    }
+                    }
                 
                 }
             }
         }
         stage('deploy') {
             agent any
-            input{              //input block will help you provide an input during runtime
+            input{              
                 message "Select the version to deploy"
                 ok "version selected"
                 parameters{
@@ -70,11 +76,18 @@ pipeline {
             }
             steps {
                 script{
+                    sshagent(['aws-key']) {
+                        withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'dockerpasswd', usernameVariable: 'dockeruser')]) {
                     echo "deploying the app"
                     echo "deploy the code version ${params.NEWVERSION} "
+                    sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_SERVER} sudo yum install docker -y "
+                    sh "ssh ${DEPLOY_SERVER} sudo docker login -u ${dockeruser} -p ${dockerpasswd}"
+                    sh "ssh ${DEPLOY_SERVER} sudo docker run -itd -P ${IMAGE_NAME}:${BUILD_NUMBER} "
                 }
-                
+                } 
             }
         }
+    }
+
     }
 }
