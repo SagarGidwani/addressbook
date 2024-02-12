@@ -81,6 +81,7 @@ pipeline {
                     echo "deploying the app"
                     echo "deploy the code version ${params.NEWVERSION} "
                     sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_SERVER} sudo yum install docker -y "
+                    sh "ssh ${DEPLOY_SERVER} sudo systemctl start docker"
                     sh "ssh ${DEPLOY_SERVER} sudo docker login -u ${dockeruser} -p ${dockerpasswd}"
                     sh "ssh ${DEPLOY_SERVER} sudo docker run -itd -P ${IMAGE_NAME}:${BUILD_NUMBER} "
                 }
