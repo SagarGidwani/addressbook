@@ -1,5 +1,3 @@
-dockerfile
-
 FROM maven:3.8.4-openjdk-11-slim As build-stage
 WORKDIR /app 
 COPY ./pom.xml ./pom.xml
