@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: $APP_NAME
+  name: java-mvn-app
   labels:
-     app: $APP_NAME
+     app: java-mvn-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: $APP_NAME
+      app: java-mvn-app
   template:
     metadata:
       labels:
-        app: $APP_NAME
+        app: java-mvn-app
     spec:
       imagePullSecrets:
       - name: my-registry-key
       containers:
-      - name: $APP_NAME
+      - name: sample-ctr
         image: sagargidwani/java-mvn-privaterepo:$BUILD_NUMBER
         imagePullPolicy: Always
         ports:
@@ -26,12 +26,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: $APP_NAME
+  name: svc1
   labels:
-      app: $APP_NAME
+      app: java-mvn-app
 spec:
   selector:
-    app: $APP_NAME
+    app: java-mvn-app
   ports:
   - port: 8080
     targetPort: 8080
