@@ -75,6 +75,7 @@ pipeline {
                 }
             }
         }
+        }
         
         stage('deploy docker container') {
             agent any
@@ -96,5 +97,4 @@ pipeline {
     }
 
     }
-}
 }
