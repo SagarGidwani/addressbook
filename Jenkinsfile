@@ -10,7 +10,8 @@ pipeline {
         IMAGE_NAME= 'sagargidwani/java-mvn-privaterepos'
     }
 
-   /* stages {
+    stages {
+        /*
         stage('compile') {
             agent any   
             steps {
