@@ -4,15 +4,9 @@ pipeline {
         jdk 'myjava'
         maven 'mymaven' 
     }
-    parameters{
-        string(name:'ENV' , defaultValue:'Test' , description:'environment to compile') 
-        booleanParam(name:'EXECUTETESTS',defaultValue: true, description:'decide to run tc')
-        choice(name:'APPVERSION',choices:['1.1', '1.2','1.3']) 
-    } 
 
     environment{
         DEV_SERVER= 'ec2-user@172.31.36.236'
-        DEPLOY_SERVER= 'ec2-user@172.31.37.66'
         IMAGE_NAME= 'sagargidwani/java-mvn-privaterepos'
     }
 
@@ -21,8 +15,7 @@ pipeline {
             agent any   
             steps {
                 script{
-                    echo "compile-hello world"
-                    echo "compile in env: ${params.ENV}"
+                    echo "compiling the code"
                     sh "mvn compile"
                 }
                 
@@ -30,14 +23,9 @@ pipeline {
         }
         stage('UnitTest') {
             agent any   
-            when{
-                expression{
-                    params.EXECUTETESTS == true
-                }
-            }
             steps {
                 script{
-                    echo 'UnitTest-Hello World'
+                    echo 'run the unit test'
                     sh "mvn test"
                 } 
             }
@@ -47,14 +35,13 @@ pipeline {
                 }
             }
         }
-         stage('package') {
+         stage('build the docker image') {
             agent any
             steps {
                 script{
                     sshagent(['aws-key']) {     
                        withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'dockerpasswd', usernameVariable: 'dockeruser')]) {    
-                    echo "package-Hello World"
-                    echo "packaging the code version ${params.APPVERSION} "
+                    echo "containerising the app"
                     sh "scp -o StrictHostKeyChecking=no server-config.sh ${DEV_SERVER}:/home/ec2-user" 
                     sh "ssh -o StrictHostKeyChecking=no ${DEV_SERVER} 'bash ~/server-config.sh ${IMAGE_NAME} ${BUILD_NUMBER}' "
                     sh 'ssh ${DEV_SERVER} sudo docker login -u ${dockeruser} -p ${dockerpasswd}'
@@ -65,27 +52,38 @@ pipeline {
                 }
             }
         }
-        stage('deploy') {
+        stage("TF create EC2"){
             agent any
-            input{              
-                message "Select the version to deploy"
-                ok "version selected"
-                parameters{
-                    choice(name: 'NEWVERSION', choices:['3.4','3.5','3.6'])
+            steps{
+                script{
+                    withCredentials([<object of type com.cloudbees.jenkins.plugins.awscredentials.AmazonWebServicesCredentialsBinding>]) {
+                    dir("terraform")
+                        sh "terraform init"
+                        sh "terraform apply -auto-approve"
+                        EC2_PUBLIC_IP=sh(
+                            script: "terraform output public-ip",
+                            returnStdout: true
+                        ).trim()
+
                 }
             }
+        }
+        }
+        stage('deploy docker container') {
+            agent any
             steps {
                 script{
+                    echo "waiting for ec2 instance to initialise"
+                    sleep(time: 90, unit: "SECONDS")
                     sshagent(['aws-key']) {
                         withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'dockerpasswd', usernameVariable: 'dockeruser')]) {
                     echo "deploying the app"
-                    echo "deploy the code version ${params.NEWVERSION} "
                     sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_SERVER} sudo yum install docker -y "
-                    sh "ssh ${DEPLOY_SERVER} sudo systemctl start docker"
-                    sh "ssh ${DEPLOY_SERVER} sudo docker login -u ${dockeruser} -p ${dockerpasswd}"
-                    sh "ssh ${DEPLOY_SERVER} sudo docker run -itd -P ${IMAGE_NAME}:${BUILD_NUMBER} "
+                    sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo systemctl start docker"
+                    sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo docker login -u ${dockeruser} -p ${dockerpasswd}"
+                    sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo docker run -itd -p 8081:8080 ${IMAGE_NAME}:${BUILD_NUMBER} "
                 }
-                } 
+                }  
             }
         }
     }
