@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment{
-        DEV_SERVER= 'ec2-user@172.31.36.236'
+        DEV_SERVER= 'ec2-user@172.31.34.67'
         IMAGE_NAME= 'sagargidwani/java-mvn-privaterepos'
     }
 
