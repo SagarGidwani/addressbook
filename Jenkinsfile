@@ -55,15 +55,15 @@ pipeline {
         }
         */
         stage("TF create EC2"){
-             /* environment{
+               environment{
                  AWS_ACCESS_KEY_ID =credentials("AWS_ACCESS_KEY_ID")
                  AWS_SECRET_ACCESS_KEY=credentials("AWS_SECRET_ACCESS_KEY")
-              }*/
+              }
 
             agent any
             steps{
                 script{
-                      withCredentials([$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'yogita_aws_credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']) {
+                      //withCredentials([$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'yogita_aws_credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']) {
                     dir("terraform")
                         sh "terraform init"
                         sh "terraform apply -auto-approve"
@@ -74,7 +74,7 @@ pipeline {
 
                 }
             }
-        }
+        
         }
         
         stage('deploy docker container') {
