@@ -56,7 +56,7 @@ pipeline {
             agent any
             steps{
                 script{
-                    withCredentials([<object of type com.cloudbees.jenkins.plugins.awscredentials.AmazonWebServicesCredentialsBinding>]) {
+                    withCredentials([$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'yogita_aws_credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']) {
                     dir("terraform")
                         sh "terraform init"
                         sh "terraform apply -auto-approve"
