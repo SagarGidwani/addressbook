@@ -64,13 +64,14 @@ pipeline {
             steps{
                 script{
                       //withCredentials([$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'yogita_aws_credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']) {
-                    dir("terraform")
+                    dir("terraform"){
                         sh "terraform init"
                         sh "terraform apply -auto-approve"
                         EC2_PUBLIC_IP=sh(
                             script: "terraform output public-ip",
                             returnStdout: true
                         ).trim()
+                    }
 
                 }
             }
