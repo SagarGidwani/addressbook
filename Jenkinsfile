@@ -6,12 +6,12 @@ pipeline {
     }
 
     environment{
-       // DEV_SERVER= 'ec2-user@172.31.34.67'
+        DEV_SERVER= 'ec2-user@172.31.34.67'
         IMAGE_NAME= 'sagargidwani/java-mvn-privaterepos'
     }
 
     stages {
-        /*
+        
         stage('compile') {
             agent any   
             steps {
@@ -53,7 +53,7 @@ pipeline {
                 }
             }
         }
-        */
+        
         stage("TF create EC2"){
                environment{
                  AWS_ACCESS_KEY_ID =credentials("AWS_ACCESS_KEY_ID")
@@ -90,12 +90,13 @@ pipeline {
                     sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_SERVER} sudo yum install docker -y "
                     sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo systemctl start docker"
                     sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo docker login -u ${dockeruser} -p ${dockerpasswd}"
-                    sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo docker run -itd -p 8081:8080 ${IMAGE_NAME}:8 "
+                    sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo docker run -itd -p 8081:8080 ${IMAGE_NAME}:${BUILD_NUMBER} "
+                        }
+                    
+                    }  
                 }
-                }  
             }
         }
-    }
 
     }
 }
