@@ -87,7 +87,7 @@ pipeline {
                     sshagent(['aws-key']) {
                         withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'dockerpasswd', usernameVariable: 'dockeruser')]) {
                     echo "deploying the app"
-                    sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_SERVER} sudo yum install docker -y "
+                    sh "ssh -o StrictHostKeyChecking=no ec2-user@${EC2_PUBLIC_IP} sudo yum install docker -y "
                     sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo systemctl start docker"
                     sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo docker login -u ${dockeruser} -p ${dockerpasswd}"
                     sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo docker run -itd -p 8081:8080 ${IMAGE_NAME}:${BUILD_NUMBER} "
