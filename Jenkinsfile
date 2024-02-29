@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment{
-        DEV_SERVER= 'ec2-user@172.31.12.52'
+        DEV_SERVER= 'ec2-user@172.31.45.200'
         IMAGE_NAME= "sagargidwani/java-mvn-privaterepos:${BUILD_NUMBER}"
         ACM_IP= 'ec2-user@172.31.11.99'
         AWS_ACCESS_KEY_ID =credentials("AWS_ACCESS_KEY_ID")
