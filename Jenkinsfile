@@ -87,13 +87,13 @@ pipeline {
                     //echo "waiting for ec2 instance to initialise"
                     //sleep(time: 90, unit: "SECONDS")
                     sshagent(['aws-key']) {
-                        withCredentials([sshUserPrivateKey(credentialsId: 'Ansible-key' , keyFileVariable: 'keyfile' , usernameVariable: 'user' )]){
                     echo "deploying the app"
                     sh "scp -r -o strictHostKeyChecking=no /var/lib/jenkins/workspace/ansible-tf-docker-cicd/ansible ${ACM_IP}:/home/ec2-user"
-                    
-                    sh "scp -o strictHostKeyChecking=no $keyfile ${ACM_IP}:/home/ec2-user/.ssh/"
-                    sh "ssh -o strictHostKeyChecking=no ${ACM_IP} bash /home/ec2-user/ansible/prepare-ACM.sh ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${IMAGE_NAME} ${DOCKER_REG_PASSWORD}"
+                        withCredentials([sshUserPrivateKey(credentialsId: 'Ansible-key' , keyFileVariable: 'keyfile' , usernameVariable: 'user' )]){
+                          sh "scp -o strictHostKeyChecking=no $keyfile ${ACM_IP}:/home/ec2-user/.ssh/id_rsa"
                         }
+                    sh "ssh -o strictHostKeyChecking=no ${ACM_IP} bash /home/ec2-user/ansible/prepare-ACM.sh ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${IMAGE_NAME} ${DOCKER_REG_PASSWORD}"
+                        
                     }  
                 }
             }
