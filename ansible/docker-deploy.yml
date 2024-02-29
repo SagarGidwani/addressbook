@@ -20,5 +20,5 @@
   - name: run the docker image
     docker_container:
       name: addbook
-      image: sagargidwani/java-mvn-privaterepos:php20
+      image: {{DOCKER_IMAGE}}
       published_ports: "8081:80"
