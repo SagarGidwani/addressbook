@@ -15,7 +15,6 @@ pipeline {
     }
 
     stages {
-       agent any 
         stage('compile') {
             agent any   
             steps {
