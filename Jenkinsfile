@@ -15,7 +15,7 @@ pipeline {
     }
 
     stages {
-        
+       agent any 
         stage('compile') {
             agent any   
             steps {
@@ -48,7 +48,7 @@ pipeline {
                        withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'dockerpasswd', usernameVariable: 'dockeruser')]) {    
                     echo "containerising the app"
                     sh "scp -o StrictHostKeyChecking=no server-config.sh ${DEV_SERVER}:/home/ec2-user" 
-                    sh "ssh -o StrictHostKeyChecking=no ${DEV_SERVER} 'bash ~/server-config.sh ${IMAGE_NAME} ${BUILD_NUMBER}' "
+                    sh "ssh -o StrictHostKeyChecking=no ${DEV_SERVER} 'bash ~/server-config.sh ${IMAGE_NAME}' "
                     sh 'ssh ${DEV_SERVER} sudo docker login -u ${dockeruser} -p ${dockerpasswd}'
                     sh "ssh ${DEV_SERVER} sudo docker push ${IMAGE_NAME}" 
                     }
@@ -63,7 +63,6 @@ pipeline {
                  AWS_ACCESS_KEY_ID =credentials("AWS_ACCESS_KEY_ID")
                  AWS_SECRET_ACCESS_KEY=credentials("AWS_SECRET_ACCESS_KEY")
               }
-
             agent any
             steps{
                 script{
