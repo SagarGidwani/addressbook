@@ -6,8 +6,12 @@ pipeline {
     }
 
     environment{
-        DEV_SERVER= 'ec2-user@172.31.34.67'
-        IMAGE_NAME= 'sagargidwani/java-mvn-privaterepos'
+        DEV_SERVER= 'ec2-user@172.31.12.52'
+        IMAGE_NAME= 'sagargidwani/java-mvn-privaterepos:${BUILD_NUMBER}'
+        ACM_IP= 'ec2-user@172.31.38.67'
+        AWS_ACCESS_KEY_ID =credentials("AWS_ACCESS_KEY_ID")
+        AWS_SECRET_ACCESS_KEY=credentials("AWS_SECRET_ACCESS_KEY")
+        DOCKER_REG_PASSWORD=credentials("DOCKER_REG_PASSWORD")
     }
 
     stages {
@@ -46,7 +50,7 @@ pipeline {
                     sh "scp -o StrictHostKeyChecking=no server-config.sh ${DEV_SERVER}:/home/ec2-user" 
                     sh "ssh -o StrictHostKeyChecking=no ${DEV_SERVER} 'bash ~/server-config.sh ${IMAGE_NAME} ${BUILD_NUMBER}' "
                     sh 'ssh ${DEV_SERVER} sudo docker login -u ${dockeruser} -p ${dockerpasswd}'
-                    sh "ssh ${DEV_SERVER} sudo docker push ${IMAGE_NAME}:${BUILD_NUMBER}" 
+                    sh "ssh ${DEV_SERVER} sudo docker push ${IMAGE_NAME}" 
                     }
                     }
                 
@@ -78,21 +82,19 @@ pipeline {
         
         }
         
-        stage('deploy docker container') {
+        stage('deploy docker container through ansible') {
             agent any
             steps {
                 script{
-                    echo "waiting for ec2 instance to initialise"
-                    sleep(time: 90, unit: "SECONDS")
+                    //echo "waiting for ec2 instance to initialise"
+                    //sleep(time: 90, unit: "SECONDS")
                     sshagent(['aws-key']) {
-                        withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'dockerpasswd', usernameVariable: 'dockeruser')]) {
                     echo "deploying the app"
-                    sh "ssh -o StrictHostKeyChecking=no ec2-user@${EC2_PUBLIC_IP} sudo yum install docker -y "
-                    sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo systemctl start docker"
-                    sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo docker login -u ${dockeruser} -p ${dockerpasswd}"
-                    sh "ssh ec2-user@${EC2_PUBLIC_IP} sudo docker run -itd -p 8081:8080 ${IMAGE_NAME}:${BUILD_NUMBER} "
-                        }
-                    
+                    sh "scp -o StrictHostKeyChecking=no ansibe/* ${ACM_IP}:/home/ec2-user"
+                    withCredentials([sshUserPrivateKey(credentialsId: 'Ansible-key' , keyFileVariable: 'keyfile' , usernameVariable: 'user' )]){
+                        sh "scp -o StrictHostKeyChecking=no $keyfile ${ACM_IP}:/home/ec2-user/.ssh/id_rsa"
+                    }
+                    sh "ssh -o StrictHostKeyChecking=no ${ACM_IP} bash /home/ec2-user/prepare-ACM.sh ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${IMAGE_NAME} ${DOCKER_REG_PASSWORD}"
                     }  
                 }
             }
