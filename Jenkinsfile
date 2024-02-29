@@ -8,7 +8,7 @@ pipeline {
     environment{
         DEV_SERVER= 'ec2-user@172.31.12.52'
         IMAGE_NAME= "sagargidwani/java-mvn-privaterepos:${BUILD_NUMBER}"
-        ACM_IP= 'ec2-user@172.31.38.67'
+        ACM_IP= 'ec2-user@172.31.11.99'
         AWS_ACCESS_KEY_ID =credentials("AWS_ACCESS_KEY_ID")
         AWS_SECRET_ACCESS_KEY=credentials("AWS_SECRET_ACCESS_KEY")
         DOCKER_REG_PASSWORD=credentials("DOCKER_REG_PASSWORD")
