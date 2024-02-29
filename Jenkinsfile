@@ -88,7 +88,7 @@ pipeline {
                     //sleep(time: 90, unit: "SECONDS")
                     sshagent(['aws-key']) {
                     echo "deploying the app"
-                    sh "scp -o StrictHostKeyChecking=no ansibe/* ${ACM_IP}:/home/ec2-user"
+                    sh "scp -r -o StrictHostKeyChecking=no ansibe/* ${ACM_IP}:/home/ec2-user"
                     withCredentials([sshUserPrivateKey(credentialsId: 'Ansible-key' , keyFileVariable: 'keyfile' , usernameVariable: 'user' )]){
                         sh "scp -o StrictHostKeyChecking=no $keyfile ${ACM_IP}:/home/ec2-user/.ssh/id_rsa"
                     }
