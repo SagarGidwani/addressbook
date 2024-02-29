@@ -3,8 +3,8 @@
   become: true
   become_user: root
   gather_facts: false
-   vars:
-     ansible_python_interpreter: /usr/bin/python3
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
  # vars_prompt:
  #  name: DOCKER_REG_PASSWORD
  #   prompt: enter the docker hub password
