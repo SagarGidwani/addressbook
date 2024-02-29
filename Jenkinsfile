@@ -91,7 +91,7 @@ pipeline {
                     echo "deploying the app"
                     sh "scp -r -o strictHostKeyChecking=no /var/lib/jenkins/workspace/ansible-tf-docker/ansible ${ACM_IP}:/home/ec2-user"
                     
-                    sh "scp -o strictHostKeyChecking=no $keyfile ${ACM_IP}:/home/ec2-user/.ssh/id_rsa"
+                    sh "scp -o strictHostKeyChecking=no $keyfile ${ACM_IP}:/home/ec2-user/.ssh/"
                     sh "ssh -o strictHostKeyChecking=no ${ACM_IP} bash /home/ec2-user/ansible/prepare-ACM.sh ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${IMAGE_NAME} ${DOCKER_REG_PASSWORD}"
                         }
                     }  
